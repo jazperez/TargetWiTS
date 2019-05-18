@@ -3,12 +3,14 @@ import os
 import sys
 
 
-def getfurncolors(filename):
-	file = open(filename, 'r')
-	values = json.load(file)
-	color = values["product"]["variation"]["color"]	
-	file.close()
-	return color
+def getfurnattributes(dirname):
+	attributes = []
+	for file in os.listdir(dirname):
+		fp = open(filename, 'r')
+		values = json.load(file)
+		attributes.append((values["product"]["title"], values["product"]["variation"]["color"]))
+		fp.close()
+	return attributes
 
 def findoverlapping(complements, chosen_palatte):
 	seencolors = set()
@@ -22,17 +24,23 @@ def findoverlapping(complements, chosen_palatte):
 				seencolors.add(compcolor)
 	return finalcolors
 
+def getcomplements(furniture, overlaps):
+	comps = []
+	for (name, color1) in furniture:
+		for color2 in overlaps:
+			if color2 in color1:
+				comps.append(name)
+	return comps
 
 def main():
 	palette = {"bedroom1": ["blue", "gray"], "bedroom2": ["white", "green"], "bedroom3": ["gold", "black"]}
-	jsonfile = sys.argv[1]
+	jsonfiledir = sys.argv[1]
 	chosen_palette = palette[sys.argv[2]]
 	complements = {"blue": ["pink", "gray", "black", "white"], "gray": ["white", "black", "blue"],"white": ["black", "gray", "brown", "blue"], "green": ["gold", "white"], "pink": ["white", "blue"]}
 	overlaps = findoverlapping(complements, chosen_palette)
-	print(overlaps)
-	furniture_colors = getfurncolors(jsonfile)
-	print(furniture_colors)
-
+	furniture = getfurnattributes(jsonfile)
+	relevant = getcomplements(furniture, overlaps)
+	print(relevant)
 
 
 if __name__ == '__main__':
